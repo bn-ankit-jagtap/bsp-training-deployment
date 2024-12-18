@@ -1,0 +1,160 @@
+aws::vpc aj-gyro-poc-vpc
+    cidr-block: "10.0.0.0/16"
+    enable-classic-link: false
+    enable-dns-hostnames: true
+    enable-dns-support: true
+end
+
+aws::internet-gateway aj-gyro-poc-igw
+    vpc: $(aws::vpc aj-gyro-poc-vpc)
+end
+
+# aws::network-acl aj-gyro-poc-nacl
+#     vpc: $(aws::vpc aj-gyro-poc-vpc)
+#     #  ingress-rule
+#     #     rule-number: 100
+#     #     rule-action: "allow"
+#     #     protocol: -1 # Allow all protocols
+#     #     cidr-block: "0.0.0.0/0" # Allow traffic from any IPv4 source
+#     #     from-port: 0
+#     #     to-port: 65536
+#     # end
+
+#     # egress-rule
+#     #     rule-number: 101
+#     #     rule-action: "allow"
+#     #     protocol: -1 # Allow all protocols
+#     #     cidr-block: "0.0.0.0/0" # Allow traffic to any IPv4 destination
+#     #     from-port: 0
+#     #     to-port: 65536
+#     # end
+#     tags: {
+#         Name: "aj-gyro-poc-nacl"
+#     }
+# end
+
+aws::elastic-ip aj-gyro-poc-eip
+    allow-re-association : true
+    name: "aj-gyro-poc-eip"
+end
+
+aws::nat-gateway aj-gyro-poc-natgw
+    elastic-ip: $(aws::elastic-ip aj-gyro-poc-eip)
+    subnet: $(aws::subnet aj-gyro-poc-public-subnet-1)
+    internet-gateway: $(aws::internet-gateway aj-gyro-poc-igw)
+    tags: {
+        Name: aj-gyro-poc-natgw
+    }
+end
+
+aws::subnet aj-gyro-poc-public-subnet-1
+    vpc: $(aws::vpc aj-gyro-poc-vpc)
+    # network-acl: $(aws::network-acl aj-gyro-poc-nacl)
+    availability-zone: ap-south-1a
+    cidr-block: "10.0.0.0/24"
+    map-public-ip-on-launch: true
+    # route-table: $(aws::route-table aj-gyro-poc-rt-public)
+end
+
+aws::subnet aj-gyro-poc-public-subnet-2
+    vpc: $(aws::vpc aj-gyro-poc-vpc)
+    # network-acl: $(aws::network-acl aj-gyro-poc-nacl)
+    availability-zone: ap-south-1b
+    cidr-block: "10.0.1.0/24"
+    map-public-ip-on-launch: true
+end
+
+aws::subnet aj-gyro-poc-public-subnet-3
+    vpc: $(aws::vpc aj-gyro-poc-vpc)
+    # network-acl: $(aws::network-acl aj-gyro-poc-nacl)
+    availability-zone: ap-south-1c
+    cidr-block: "10.0.2.0/24"
+    map-public-ip-on-launch: true
+end
+
+aws::subnet aj-gyro-poc-private-subnet-1
+    vpc: $(aws::vpc aj-gyro-poc-vpc)
+    # network-acl: $(aws::network-acl aj-gyro-poc-nacl)
+    availability-zone: ap-south-1a
+    cidr-block: "10.0.3.0/24"
+end
+
+aws::subnet aj-gyro-poc-private-subnet-2
+    vpc: $(aws::vpc aj-gyro-poc-vpc)
+    # network-acl: $(aws::network-acl aj-gyro-poc-nacl)
+    availability-zone: ap-south-1b
+    cidr-block: "10.0.4.0/24"
+end
+
+aws::subnet aj-gyro-poc-private-subnet-3
+    vpc: $(aws::vpc aj-gyro-poc-vpc)
+    # network-acl: $(aws::network-acl aj-gyro-poc-nacl)
+    availability-zone: ap-south-1c
+    cidr-block: "10.0.5.0/24"
+end
+
+aws::route-table aj-gyro-poc-rt-public
+    vpc: $(aws::vpc aj-gyro-poc-vpc)
+    subnets: [
+        $(aws::subnet aj-gyro-poc-public-subnet-1),
+        $(aws::subnet aj-gyro-poc-public-subnet-2), 
+        $(aws::subnet aj-gyro-poc-public-subnet-3)
+        ]
+    route
+        destination-cidr-block: "0.0.0.0/0"
+        gateway: $(aws::internet-gateway aj-gyro-poc-igw)
+    end
+    tags: {
+        Name: aj-gyro-poc-rt
+    }
+end
+
+aws::route-table aj-gyro-poc-rt-private
+    vpc: $(aws::vpc aj-gyro-poc-vpc)
+    subnets: $(aws::subnet aj-gyro-poc-private-subnet-1)
+    route
+        destination-cidr-block: "0.0.0.0/0"
+        gateway: $(aws::internet-gateway aj-gyro-poc-igw)
+    end
+    tags: {
+        Name: aj-gyro-poc-rt
+    }
+end
+
+aws::security-group aj-gyro-poc-security-group
+    name: "aj-gyro-poc-security-group"
+    vpc: $(aws::vpc aj-gyro-poc-vpc)  # Specify your VPC
+    description: "Security Group for EKS Cluster"
+end
+
+aws::security-group-rules aj-gyro-poc-security-group
+    security-group: $(aws::security-group aj-gyro-poc-security-group)
+
+    ingress
+        protocol: -1  # Allows all protocols
+        cidr-block: "0.0.0.0/0"
+        description: "Allow all inbound traffic"
+    end
+
+    ingress
+        protocol: "tcp"
+        from-port: 443
+        to-port: 443
+        cidr-block: "0.0.0.0/0"
+        description: "Allow HTTPS inbound traffic"
+    end
+
+    # egress
+    #     protocol: -1  # Allows all outbound traffic
+    #     cidr-block: "0.0.0.0/0"
+    #     description: "Allow all outbound traffic"
+    # end
+
+    # egress
+    #     protocol: "tcp"
+    #     from-port: 80
+    #     to-port: 80
+    #     cidr-block: "0.0.0.0/0"
+    #     description: "Allow HTTP outbound traffic"
+    # end
+end

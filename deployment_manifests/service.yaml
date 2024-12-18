@@ -1,0 +1,124 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  labels:
+    app: mysql
+spec:
+  selector:
+    app: mysql
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
+  type: ClusterIP  # Exposed only within the cluster
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: apache
+  labels:
+    app: apache
+spec:
+  selector:
+    app: apache
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 80
+    - name: https
+      protocol: TCP
+      port: 443
+      targetPort: 443
+  type: LoadBalancer  # Exposes the Apache service externally
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: greenmail
+  labels:
+    app: greenmail
+spec:
+  selector:
+    app: greenmail
+  ports:
+    - name: smtp
+      protocol: TCP
+      port: 3025
+      targetPort: 3025  # SMTP port
+    - name: pop3
+      protocol: TCP
+      port: 3110
+      targetPort: 3110  # POP3 port
+    - name: imap
+      protocol: TCP
+      port: 3143
+      targetPort: 3143  # IMAP port
+    - name: smtps
+      protocol: TCP
+      port: 3465
+      targetPort: 3465  # SMTPS port (optional)
+    - name: imaps
+      protocol: TCP
+      port: 3993
+      targetPort: 3993  # IMAPS port (optional)
+    - name: pop3s
+      protocol: TCP
+      port: 3995
+      targetPort: 3995  # POP3S port (optional)
+  type: ClusterIP  # Exposed only within the cluster
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: solr
+  labels:
+    app: solr
+spec:
+  selector:
+    app: solr
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8080
+      targetPort: 8080  # Solr port
+  type: ClusterIP  # Exposed only within the cluster
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tomcat1
+  labels:
+    app: tomcat
+spec:
+  selector:
+    app: tomcat
+  ports:
+    - name: debug
+      protocol: TCP
+      port: 5005
+      targetPort: 5005  # Tomcat debugging port (optional)
+  type: ClusterIP  # Exposed only within the cluster
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tomcat
+  labels:
+    app: tomcat
+spec:
+  selector:
+    app: tomcat
+  ports:
+    - name: tomcat
+      protocol: TCP
+      port: 8080
+      targetPort: 8080 
+  type: ClusterIP 

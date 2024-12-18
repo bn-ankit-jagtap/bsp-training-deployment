@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+  labels:
+    app: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      securityContext:
+        fsGroup: 999 # MySQL group ID to own mounted volumes
+      initContainers:
+        - name: init-git-clone
+          image: alpine/git
+          command: ["/bin/sh", "-c", "git clone https://github.com/perfectsense/training.git && rm -rf /docker-entrypoint-initdb.d/ && cp -r ./training/etc/docker/data /docker-entrypoint-initdb.d && rm -rf /docker-entrypoint-initdb.d/lost+found/"]
+          volumeMounts:
+            - name: mysql-initdb
+              mountPath: /docker-entrypoint-initdb.d
+
+      containers:
+        - name: mysql
+          image: 445567073997.dkr.ecr.ap-south-1.amazonaws.com/brightspot/mysql
+          securityContext:
+            runAsUser: 999
+            runAsGroup: 999
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - name: mysql-initdb
+              mountPath: /docker-entrypoint-initdb.d
+            - name: mysql-data
+              mountPath: /var/lib/mysql
+            - name: mysql-logs
+              mountPath: /var/log/mysql
+      volumes:
+        - name: mysql-initdb
+          persistentVolumeClaim:
+            claimName: mysql-initdb-pvc
+        - name: mysql-data
+          persistentVolumeClaim:
+            claimName: mysql-data-pvc
+        - name: mysql-logs
+          persistentVolumeClaim:
+            claimName: mysql-logs-pvc

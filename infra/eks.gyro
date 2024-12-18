@@ -1,0 +1,97 @@
+# IAM Policy for EKS Cluster Role
+aws::iam-policy aj-gyro-poc-eks-cluster-policy
+    name: "aj-gyro-poc-eks-cluster-policy"
+    description: "Policy for EKS Cluster Role"
+    policy-document: "eks-policy.json"
+end
+
+# IAM Role for EKS Cluster
+aws::iam-role aj-gyro-poc-eks-cluster-role
+    name: "aj-gyro-poc-eks-cluster-role"
+    description: "IAM Role for EKS Cluster"
+    assume-role-policy: "cluster-assume-role.json"
+    policies: [
+        $(aws::iam-policy aj-gyro-poc-eks-cluster-policy)
+    ]
+end
+
+# EKS Cluster
+aws::eks-cluster aj-gyro-poc-eks-cluster
+    name: "aj-gyro-poc-cluster"
+    role: $(aws::iam-role aj-gyro-poc-eks-cluster-role)
+    version: 1.29
+
+    vpc-config
+        enable-endpoint-private-access: true
+        enable-endpoint-public-access: true
+
+        subnets: [
+            $(aws::subnet aj-gyro-poc-public-subnet-1),
+            $(aws::subnet aj-gyro-poc-public-subnet-2),
+            $(aws::subnet aj-gyro-poc-public-subnet-3)
+        ]
+
+        security-groups: [
+            $(aws::security-group aj-gyro-poc-security-group)
+        ]
+
+        public-access-cidrs: [
+            "0.0.0.0/0"
+        ]
+    end
+
+    logging
+        enabled-log-types
+            log-types: [audit, api]
+        end
+    end
+
+    tags: {
+        "Environment": "poc"
+    }
+end
+
+# IAM Role for Node Group
+aws::iam-role aj-gyro-poc-eks-nodegroup-role
+    name: "aj-gyro-poc-eks-nodegroup-role"
+    description: "IAM Role for EKS Nodegroup"
+    assume-role-policy: "nodegroup-assume-role.json"
+    policies: [
+        $(aws::iam-policy aj-gyro-poc-eks-nodegroup-policy)
+    ]
+end
+
+# IAM Policy for Node Group Role
+aws::iam-policy aj-gyro-poc-eks-nodegroup-policy
+    name: "aj-gyro-poc-eks-nodegroup-policy"
+    policy-document: "nodegroup-policy.json"
+end
+
+# EKS Nodegroup
+aws::eks-nodegroup aj-gyro-poc-eks-nodegroup
+    name: "aj-gyro-poc-eks-nodegroup"
+    cluster: $(aws::eks-cluster aj-gyro-poc-eks-cluster)
+    node-role: $(aws::iam-role aj-gyro-poc-eks-nodegroup-role)
+
+    subnets: [
+        $(aws::subnet aj-gyro-poc-public-subnet-1),
+        $(aws::subnet aj-gyro-poc-public-subnet-2),
+        $(aws::subnet aj-gyro-poc-public-subnet-3)
+    ]
+
+    scaling-config
+        desired-size: 2
+        max-size: 3
+        min-size: 1
+    end
+
+    instance-types: ["t3.medium"]
+
+    labels: {
+        "environment": "poc"
+    }
+
+    tags: {
+        "Name": "aj-gyro-poc-nodegroup"
+    }
+end

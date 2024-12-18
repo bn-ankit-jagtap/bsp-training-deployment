@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: solr
+  labels:
+    app: solr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: solr
+  template:
+    metadata:
+      labels:
+        app: solr
+    spec:
+      containers:
+        - name: solr
+          image: 445567073997.dkr.ecr.ap-south-1.amazonaws.com/brightspot-training-solr
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: solr-data
+              mountPath: /var/solr/data/collection1/data
+      volumes:
+        - name: solr-data
+          persistentVolumeClaim:
+            claimName: solr-data-pvc

@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tomcat
+  labels:
+    app: tomcat
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tomcat
+  template:
+    metadata:
+      labels:
+        app: tomcat
+    spec:
+      initContainers:
+        - name: code
+          image: alpine/git
+          command: ["/bin/sh", "-c", "git clone https://github.com/perfectsense/training.git && cp -r ./training/* /code/ && rm -rf /training && rm -rf /code/lost+found"]
+          volumeMounts:
+            - name: code
+              mountPath: /code
+
+      containers:
+        - name: tomcat
+          image: 445567073997.dkr.ecr.ap-south-1.amazonaws.com/brightspot-training-tomcat
+          ports:
+            - containerPort: 5005
+          env:
+            - name: ROOT_WAR
+              value: "/code/web/build/libs/web.war"
+            - name: CONTEXT_PROPERTIES
+              value: "/code/docker-context.properties"
+            - name: LOGGING_PROPERTIES
+              value: "/code/docker-logging.properties"
+            - name: AWS_PROFILE
+              value: "psd-training"
+            - name: SOLR_URL
+              value: "http://solr:8080/solr/collection1"
+          volumeMounts:
+            - name: code
+              mountPath: /code
+            - name: aws-credentials
+              mountPath: /etc/aws
+            - name: storage
+              mountPath: /servers/tomcat/storage
+      volumes:
+        - name: code
+          persistentVolumeClaim:
+            claimName: tomcat-code-pvc
+        - name: aws-credentials
+          emptyDir: {} 
+        - name: storage
+          persistentVolumeClaim:
+            claimName: storage-data-pvc

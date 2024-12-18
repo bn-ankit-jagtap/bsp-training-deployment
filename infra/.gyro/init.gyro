@@ -1,0 +1,13 @@
+@repository: 'https://artifactory.psdops.com/public'
+@repository: 'https://artifactory.psdops.com/gyro-snapshots'
+@plugin: 'gyro:gyro-aws-provider:1.6.0'
+
+@credentials 'aws::credentials'
+    profile-name: 'gyro-poc'
+    region: 'ap-south-1'
+@end
+
+@state-backend 'aws::s3'
+    bucket: 'gyro-state-bucket-aj-gyro-poc'
+    prefix: '.gyro1/state'
+@end

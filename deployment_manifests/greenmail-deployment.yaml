@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: greenmail
+  labels:
+    app: greenmail
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: greenmail
+  template:
+    metadata:
+      labels:
+        app: greenmail
+    spec:
+      containers:
+        - name: greenmail
+          image: 445567073997.dkr.ecr.ap-south-1.amazonaws.com/greenmail/standalone
+          ports:
+            - containerPort: 3025
+            - containerPort: 3110
+            - containerPort: 3143
+            - containerPort: 3465
+            - containerPort: 3993
+            - containerPort: 3995
