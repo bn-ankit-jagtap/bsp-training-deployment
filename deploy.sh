@@ -12,8 +12,11 @@ kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/down
 cd ../deployment_manifests
 kubectl apply -f gp2-storageclass.yaml 
 kubectl apply -f persistent-volumes.yaml 
+sleep 60
 kubectl apply -f tomcat-deployment.yaml
+sleep 60
 kubectl apply -f mysql-deployment.yaml 
+sleep 60
 kubectl apply -f service.yaml
 kubectl apply -f solr-deployment.yaml
 kubectl apply -f greenmail-deployment.yaml
