@@ -9,3 +9,4 @@ cd ../infra/
 
 sed -i 's/^/# /' eks.gyro
 sed -i 's/^/# /' vpc.gyro
+sudo gyro up
