@@ -4,6 +4,7 @@ metadata:
   name: apache
   labels:
     app: apache
+  namespace: brightspot8
 spec:
   replicas: 1
   selector:
@@ -16,7 +17,7 @@ spec:
     spec:
       containers:
         - name: apache
-          image: 445567073997.dkr.ecr.ap-south-1.amazonaws.com/brightspot/apache:1.0.0
+          image: ankitjagtap/brightspot-apache:latest
           ports:
             - containerPort: 80
             - containerPort: 443

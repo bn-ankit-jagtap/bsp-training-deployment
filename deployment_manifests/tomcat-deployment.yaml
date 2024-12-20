@@ -4,6 +4,7 @@ metadata:
   name: tomcat
   labels:
     app: tomcat
+  namespace: brightspot8
 spec:
   replicas: 1
   selector:
@@ -14,17 +15,10 @@ spec:
       labels:
         app: tomcat
     spec:
-      initContainers:
-        - name: code
-          image: alpine/git
-          command: ["/bin/sh", "-c", "git clone https://github.com/perfectsense/training.git && cp -r ./training/* /code/ && rm -rf /training && rm -rf /code/lost+found"]
-          volumeMounts:
-            - name: code
-              mountPath: /code
-
+      hostname: training-brightspot
       containers:
         - name: tomcat
-          image: 445567073997.dkr.ecr.ap-south-1.amazonaws.com/brightspot-training-tomcat
+          image: ankitjagtap/brightspot-training-tomcat:latest
           ports:
             - containerPort: 5005
           env:
@@ -50,7 +44,8 @@ spec:
           persistentVolumeClaim:
             claimName: tomcat-code-pvc
         - name: aws-credentials
-          emptyDir: {} 
+          persistentVolumeClaim:
+            claimName: aws-credentials-pvc
         - name: storage
           persistentVolumeClaim:
             claimName: storage-data-pvc

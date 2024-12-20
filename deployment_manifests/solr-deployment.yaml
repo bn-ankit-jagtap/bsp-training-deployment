@@ -4,6 +4,7 @@ metadata:
   name: solr
   labels:
     app: solr
+  namespace: brightspot8
 spec:
   replicas: 1
   selector:
@@ -16,7 +17,7 @@ spec:
     spec:
       containers:
         - name: solr
-          image: 445567073997.dkr.ecr.ap-south-1.amazonaws.com/brightspot-training-solr
+          image: ankitjagtap/brightspot-training-solr:latest
           ports:
             - containerPort: 8080
           volumeMounts:

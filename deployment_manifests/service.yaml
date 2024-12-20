@@ -2,6 +2,7 @@
 apiVersion: v1
 kind: Service
 metadata:
+  namespace: brightspot8
   name: mysql
   labels:
     app: mysql
@@ -18,6 +19,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  namespace: brightspot8
   name: apache
   labels:
     app: apache
@@ -39,6 +41,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  namespace: brightspot8
   name: greenmail
   labels:
     app: greenmail
@@ -76,6 +79,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  namespace: brightspot8
   name: solr
   labels:
     app: solr
@@ -89,11 +93,30 @@ spec:
       targetPort: 8080  # Solr port
   type: ClusterIP  # Exposed only within the cluster
 
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   namespace: brightspot8
+#   name: tomcat1
+#   labels:
+#     app: tomcat
+# spec:
+#   selector:
+#     app: tomcat
+#   ports:
+#     - name: debug
+#       protocol: TCP
+#       port: 5005
+#       targetPort: 5005  # Tomcat debugging port (optional)
+#   type: ClusterIP  # Exposed only within the cluster
+
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: tomcat1
+  namespace: brightspot8
+  name: tomcat
   labels:
     app: tomcat
 spec:
@@ -103,22 +126,10 @@ spec:
     - name: debug
       protocol: TCP
       port: 5005
-      targetPort: 5005  # Tomcat debugging port (optional)
-  type: ClusterIP  # Exposed only within the cluster
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: tomcat
-  labels:
-    app: tomcat
-spec:
-  selector:
-    app: tomcat
-  ports:
+      targetPort: 5005
     - name: tomcat
       protocol: TCP
       port: 8080
       targetPort: 8080 
   type: ClusterIP 
+

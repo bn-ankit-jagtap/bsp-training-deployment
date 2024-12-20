@@ -1,6 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  namespace: brightspot8
   name: greenmail
   labels:
     app: greenmail
@@ -16,7 +17,7 @@ spec:
     spec:
       containers:
         - name: greenmail
-          image: 445567073997.dkr.ecr.ap-south-1.amazonaws.com/greenmail/standalone
+          image: ankitjagtap/brightspot-greenmail:latest
           ports:
             - containerPort: 3025
             - containerPort: 3110
