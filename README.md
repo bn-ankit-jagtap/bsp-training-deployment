@@ -130,3 +130,34 @@ yarn server:styleguide
 ```
 
 You can access the Styleguide application at http://localhost:8080.
+
+
+
+Deploying on EKS Cluster: 
+ 
+1) go to project directory
+2) run command : 
+```bash
+docker build -t dummy-pod -f dummy-pod.dockerfile .
+```
+3) run command : 
+```bash
+docker tag dummy-pod:latest < tag associated with ECR of Dockerhub > 
+```
+ & the run 
+ ```bash
+ docker push < tag associated with ECR of Dockerhub >
+ ```
+4) Provide same tag in dummy-pod.yaml This pod will update all the volumes with the necessory data required to spawn other deployments.
+5) from project root run : 
+```bash 
+chmod +x deploy.sh
+```
+ and then 
+ ```bash
+ bash deploy.sh
+ ```
+
+
+
+
