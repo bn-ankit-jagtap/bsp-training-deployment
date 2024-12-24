@@ -133,7 +133,7 @@ You can access the Styleguide application at http://localhost:8080.
 
 
 
-Deploying on EKS Cluster: 
+## Deploying on EKS Cluster: 
  
 1) go to project directory
 2) run command : 
